@@ -1,30 +1,34 @@
 import tkinter as tk
 import threading
 import time
-import pygetwindow as gw
+import win32process
+import win32gui
+import wmi
 from collections import defaultdict
+
+c = wmi.WMI()
 
 active_window_times = defaultdict(float)
 previous_window = None
 previous_time = time.time()
 
-def get_active_window_name():
+def get_app_name(hwnd):
     try:
-        result = gw.getActiveWindow()
-        title = result.title
-        if title:
-            return title
-        else:
-            return None
-    except Exception as e:
-        print(f"エラーが発生しました: {e}")
+        _, pid = win32process.GetWindowThreadProcessId(hwnd)
+        for p in c.query(f'SELECT Name FROM Win32_Process WHERE ProcessId = {str(pid)}'):
+            exe = p.Name
+            break
+    except:
         return None
+    else:
+        return exe
 
 def update_window_name(label):
     global previous_window, previous_time
     while True:
+        hwnd = win32gui.GetForegroundWindow()
         current_time = time.time()
-        window_name = get_active_window_name()
+        window_name = get_app_name(hwnd)
         if window_name:
             if previous_window:
                 active_window_times[previous_window] += current_time - previous_time
