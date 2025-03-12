@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from Item import Item
+from item import Item
 
 class DragAndDropApp:
     def __init__(self, root, items):
@@ -8,7 +8,7 @@ class DragAndDropApp:
         self.root.title("ドラッグ＆ドロップでジャンル分け")
 
         self.items = items
-        self.categories = ["仕事,勉強", "休憩", "趣味A", "趣味B", "その他"]
+        self.categories = ["未分類"]
 
         self.create_widgets()
 
@@ -20,16 +20,41 @@ class DragAndDropApp:
 
         self.category_frames = {}
         for category in self.categories:
-            frame = tk.Frame(self.root, bd=2, relief=tk.SUNKEN)
-            frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
-            label = tk.Label(frame, text=category)
-            label.pack()
-            listbox = tk.Listbox(frame)
-            listbox.pack(fill=tk.BOTH, expand=True)
-            self.category_frames[category] = listbox
+            self.create_category_frame(category)
 
         self.listbox.bind("<B1-Motion>", self.on_drag)
         self.listbox.bind("<ButtonRelease-1>", self.on_drop)
+
+        self.create_category_button = tk.Button(self.root, text="カテゴリ作成", command=self.create_category)
+        self.create_category_button.pack(side=tk.BOTTOM)
+
+    def create_category_frame(self, category):
+        frame = tk.Frame(self.root, bd=2, relief=tk.SUNKEN)
+        frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+        label = tk.Label(frame, text=category)
+        label.pack()
+        label.bind("<Double-Button-1>", lambda event, lbl=label: self.rename_category(lbl))
+        listbox = tk.Listbox(frame)
+        listbox.pack(fill=tk.BOTH, expand=True)
+        self.category_frames[category] = listbox
+
+    def create_category(self):
+        new_category = "名前の無いカテゴリ"
+        self.categories.append(new_category)
+        self.create_category_frame(new_category)
+
+    def rename_category(self, label):
+        entry = tk.Entry(self.root)
+        entry.insert(0, label.cget("text"))
+        entry.pack()
+        entry.focus_set()
+
+        def save_name(event):
+            new_name = entry.get()
+            label.config(text=new_name)
+            entry.destroy()
+
+        entry.bind("<Return>", save_name)
 
     def on_drag(self, event):
         widget = event.widget
