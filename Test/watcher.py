@@ -42,6 +42,7 @@ class Watcher:
                         self.items[self.previous_window].active_time += current_time - self.previous_time
                     else:
                         self.items[self.previous_window] = Item(name=self.previous_window, active_time=current_time - self.previous_time)
+                        print ("nyaa")
                 self.previous_window = window_name
                 self.previous_time = current_time
             time.sleep(1)
