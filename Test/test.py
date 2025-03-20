@@ -12,6 +12,7 @@ class Watcher:
     def __init__(self):
         self.c = wmi.WMI()        
         self.categories = []
+        self.listbox_dict = {}
         
         self.categories.append(Category(name="未分類"))
 
@@ -34,7 +35,20 @@ class Watcher:
                     item.active_time += elapsed_time
                     return
         self.categories[0].add_item(Item(name=previous_window, active_time=elapsed_time))
+        self.update_listbox(False)
         return
+
+    def update_listbox(self, all):
+        if all:
+            for category_index, listbox in self.listbox_dict.items():
+                listbox.delete(0, tk.END)
+                for item in self.categories[category_index].items:
+                    listbox.insert(tk.END, f"{item.name}")
+        else:
+            listbox = self.listbox_dict[0]
+            listbox.delete(0, tk.END)
+            for item in self.categories[0].items:
+                listbox.insert(tk.END, f"{item.name}")
 
     def update_window_name(self):
         previous_time = time.time()
@@ -56,7 +70,6 @@ class Watcher:
             time.sleep(1)
             
     def openGUI(self):
-        time.sleep(3)
         root = tk.Tk()
         root.title("Window Management")
 
@@ -82,8 +95,8 @@ class Watcher:
             label.bind("<Double-Button-1>", lambda event, lbl=label: rename_category(lbl, category_index))
             listbox = tk.Listbox(frame)
             listbox.pack(fill=tk.BOTH, expand=True)
-            for item in category.items:
-                listbox.insert(tk.END, f"{item.name}")
+            self.listbox_dict[category_index] = listbox
+            self.update_listbox(all)
 
         def create_category():
             new_category = "名前の無いカテゴリ"
