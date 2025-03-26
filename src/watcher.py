@@ -10,7 +10,7 @@ from category import Category
 from dnd_listbox import DragDropListbox
 
 class Watcher:
-    def __init__(self, categories_data=None):
+    def __init__(self, categories_data=None, timestamps=None):
         self.c = wmi.WMI()        
         self.categories = []
         self.listbox_dict = {}
@@ -18,6 +18,7 @@ class Watcher:
         self.previous_category = None
         self.lock = threading.Lock()  # ロックを追加
         self.running = True
+        self.timestamps = timestamps if timestamps else []  # タイムスタンプのリストを追加
 
         if categories_data:
             for category_data in categories_data:
@@ -80,12 +81,36 @@ class Watcher:
             if window_name:
                 if self.previous_window:
                     self.item_exists(elapsed_time)
-                if self.previous_window != window_name:
+                    if self.previous_window == window_name:
+                        # 最後のタイムスタンプのendの値を更新
+                        if self.timestamps:
+                            self.timestamps[-1]["end"] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(current_time))
+                    else:
+                        # 新しいタイムスタンプを追加
+                        self.previous_window = window_name
+                        for category in self.categories:
+                            for item in category.items:
+                                if item.name == self.previous_window:
+                                    self.previous_category = category
+                        self.timestamps.append({
+                            "app": self.previous_window,
+                            "category": self.previous_category.name if self.previous_category else "未分類",
+                            "start": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(previous_time)),
+                            "end": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(current_time))
+                        })
+                else:
+                    # 初回のタイムスタンプを追加
                     self.previous_window = window_name
                     for category in self.categories:
                         for item in category.items:
-                            if item == self.previous_window:
+                            if item.name == self.previous_window:
                                 self.previous_category = category
+                    self.timestamps.append({
+                        "app": self.previous_window,
+                        "category": self.previous_category.name if self.previous_category else "未分類",
+                        "start": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(previous_time)),
+                        "end": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(current_time))
+                    })
                 previous_time = current_time
             time.sleep(1)
 
