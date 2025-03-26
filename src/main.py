@@ -4,7 +4,6 @@ import json
 from watcher import Watcher
 
 def cleanup(watcher):
-    print("終了！")
     data = [category.to_dict() for category in watcher.categories]
     with open("categories.json", "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
