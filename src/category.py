@@ -12,9 +12,6 @@ class Category:
     def total_active_time(self):
         return sum(item.active_time for item in self.items)
 
-    def change_name(self, new_name):
-        self.name = new_name
-
     def to_dict(self):
         return {
             "name": self.name,
