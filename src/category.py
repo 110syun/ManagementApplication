@@ -14,3 +14,9 @@ class Category:
 
     def change_name(self, new_name):
         self.name = new_name
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "items": [item.to_dict() for item in self.items]
+        }
