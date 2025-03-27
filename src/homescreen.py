@@ -58,6 +58,7 @@ class Homescreen:
                     self.update_listbox(True)
 
             entry.bind("<Return>", save_name)
+            entry.bind("<FocusOut>", save_name)
 
         def create_category_frame(category):
             frame = tk.Frame(root, bd=2, relief=tk.SUNKEN)
@@ -79,11 +80,10 @@ class Homescreen:
             create_category_frame(self.app.categories[-1])
 
         def create_widgets():
-            for category in self.app.categories:
-                create_category_frame(category)
-
             create_category_button = tk.Button(root, text="カテゴリ作成", command=create_category)
             create_category_button.pack(side=tk.BOTTOM)
+            for category in self.app.categories:
+                create_category_frame(category)
 
         create_widgets()
         root.mainloop()
