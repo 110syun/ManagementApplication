@@ -2,6 +2,7 @@ import threading
 import atexit
 import json
 import time
+import os
 from watcher import Watcher
 
 def cleanup(watcher):
@@ -9,6 +10,10 @@ def cleanup(watcher):
     with open("categories.json", "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
     
+    # logディレクトリが無い場合作成
+    if not os.path.exists('log'):
+        os.makedirs('log')
+
     # タイムスタンプをファイルに出力
     timestamp_filename = time.strftime('log/%Y-%m-%d') + ".txt"
     with open(timestamp_filename, "w", encoding="utf-8") as f:
