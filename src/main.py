@@ -9,12 +9,10 @@ def cleanup(watcher):
     data = [category.to_dict() for category in watcher.categories]
     with open("categories.json", "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
-    
-    # logディレクトリが無い場合作成
+
     if not os.path.exists('log'):
         os.makedirs('log')
 
-    # タイムスタンプをファイルに出力
     timestamp_filename = time.strftime('log/%Y-%m-%d') + ".txt"
     with open(timestamp_filename, "w", encoding="utf-8") as f:
         for timestamp in watcher.timestamps:
@@ -27,7 +25,6 @@ def main():
     except FileNotFoundError:
         categories_data = None
 
-    # タイムスタンプファイルを読み取る
     timestamps = []
     timestamp_filename = time.strftime('log/%Y-%m-%d') + ".txt"
     try:
@@ -45,7 +42,7 @@ def main():
 
     watcher = Watcher(categories_data, timestamps)
     atexit.register(cleanup, watcher)
-    threading.Thread(target=watcher.openGUI, daemon=True).start()
+    threading.Thread(target=watcher.homescreen.openGUI, daemon=True).start()
     watcher.update_window_name()
 
 if __name__ == "__main__":
